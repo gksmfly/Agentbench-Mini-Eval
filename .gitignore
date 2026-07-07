@@ -1,0 +1,19 @@
+# THUDM/AgentBench original clone — not our work, not tracked in this repo.
+# Also keeps configs/agents/*.yaml (which contain real API keys once filled in)
+# from ever being committed.
+AgentBench/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS junk
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Secrets
+.env

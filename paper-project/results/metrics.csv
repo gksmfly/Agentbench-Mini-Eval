@@ -1,0 +1,48 @@
+model,metric,value,n_samples
+gpt-3.5-turbo,other_accuracy,0.23529411764705882,17
+gpt-3.5-turbo,counting_accuracy,0.17647058823529413,17
+gpt-3.5-turbo,comparison_accuracy,0.29411764705882354,17
+gpt-3.5-turbo,ranking_accuracy,0.17647058823529413,17
+gpt-3.5-turbo,aggregation-SUM_accuracy,0.125,8
+gpt-3.5-turbo,aggregation-MIN_accuracy,0.625,8
+gpt-3.5-turbo,aggregation-MAX_accuracy,0.125,8
+gpt-3.5-turbo,aggregation-AVG_accuracy,0.5,8
+gpt-3.5-turbo,SELECT_accuracy,0.26,100
+gpt-3.5-turbo,INSERT_accuracy,0.37,100
+gpt-3.5-turbo,UPDATE_accuracy,0.71,100
+gpt-3.5-turbo,overall_cat_accuracy (Success Rate),0.4466666666666666,300
+gpt-3.5-turbo,status:completed,0.9366666666666666,300
+gpt-3.5-turbo,status:task limit reached,0.05,300
+gpt-3.5-turbo,status:agent validation failed,0.013333333333333334,300
+gpt-3.5-turbo,avg_history_length (proxy for rounds/cost),9.58,300
+gpt-4o,other_accuracy,0.35294117647058826,17
+gpt-4o,counting_accuracy,0.35294117647058826,17
+gpt-4o,comparison_accuracy,0.35294117647058826,17
+gpt-4o,ranking_accuracy,0.35294117647058826,17
+gpt-4o,aggregation-SUM_accuracy,0.375,8
+gpt-4o,aggregation-MIN_accuracy,0.375,8
+gpt-4o,aggregation-MAX_accuracy,0.125,8
+gpt-4o,aggregation-AVG_accuracy,0.125,8
+gpt-4o,SELECT_accuracy,0.32,100
+gpt-4o,INSERT_accuracy,0.32,100
+gpt-4o,UPDATE_accuracy,0.78,100
+gpt-4o,overall_cat_accuracy (Success Rate),0.47333333333333333,300
+gpt-4o,status:completed,0.5333333333333333,300
+gpt-4o,status:agent validation failed,0.21,300
+gpt-4o,status:agent context limit,0.25666666666666665,300
+gpt-4o,avg_history_length (proxy for rounds/cost),6.573333333333333,300
+llama-3.1-8b,other_accuracy,0.0,17
+llama-3.1-8b,counting_accuracy,0.0,17
+llama-3.1-8b,comparison_accuracy,0.0,17
+llama-3.1-8b,ranking_accuracy,0.0,17
+llama-3.1-8b,aggregation-SUM_accuracy,0.0,8
+llama-3.1-8b,aggregation-MIN_accuracy,0.0,8
+llama-3.1-8b,aggregation-MAX_accuracy,0.0,8
+llama-3.1-8b,aggregation-AVG_accuracy,0.0,8
+llama-3.1-8b,SELECT_accuracy,0.0,100
+llama-3.1-8b,INSERT_accuracy,0.0,100
+llama-3.1-8b,UPDATE_accuracy,0.0,100
+llama-3.1-8b,overall_cat_accuracy (Success Rate),0.0,300
+llama-3.1-8b,status:agent validation failed,0.8233333333333334,300
+llama-3.1-8b,status:agent context limit,0.17666666666666667,300
+llama-3.1-8b,avg_history_length (proxy for rounds/cost),4.373333333333333,300

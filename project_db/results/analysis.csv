@@ -23,3 +23,11 @@ llama-3.1-8b,wall_clock_minutes_300_samples,9.239116666666666
 llama-3.1-8b,samples_per_minute,32.47063662290948
 llama-3.1-8b,sql_execution_error_rate,0.14
 llama-3.1-8b,avg_agent_response_chars,77.71036585365853
+claude-sonnet-5,total_input_tokens_est,721323
+claude-sonnet-5,total_output_tokens_est,73949
+claude-sonnet-5,estimated_cost_usd_300_samples,2.1821
+claude-sonnet-5,estimated_cost_usd_per_correct_answer,0.0107
+claude-sonnet-5,wall_clock_minutes_300_samples,15.266933333333332
+claude-sonnet-5,samples_per_minute,19.65031178494699
+claude-sonnet-5,sql_execution_error_rate,0.07333333333333333
+claude-sonnet-5,avg_agent_response_chars,212.23980309423348

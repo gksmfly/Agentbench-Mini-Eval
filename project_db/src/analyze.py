@@ -26,16 +26,19 @@ ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = ROOT / "results" / "raw"
 OUT_FILE = ROOT / "results" / "analysis.csv"
 
-MODELS = ["gpt-3.5-turbo", "gpt-4o", "llama-3.1-8b"]
+MODELS = ["gpt-3.5-turbo", "gpt-4o", "llama-3.1-8b", "claude-sonnet-5"]
 
 # Approximate public per-1M-token pricing at time of writing. Not guaranteed current —
 # check the provider's pricing page before using these numbers for a real budget.
 # llama-3.1-8b was actually run via Groq's free tier, so real spend was $0; the paid
 # rate is included only so the "if you weren't on the free tier" comparison is visible.
+# claude-sonnet-5 uses Anthropic's introductory pricing (in effect through 2026-08-31);
+# standard pricing is $3.00/$15.00.
 PRICING_PER_1M = {
     "gpt-3.5-turbo": {"input": 0.50, "output": 1.50},
     "gpt-4o": {"input": 2.50, "output": 10.00},
     "llama-3.1-8b": {"input": 0.05, "output": 0.08},
+    "claude-sonnet-5": {"input": 2.00, "output": 10.00},
 }
 
 # tiktoken has no llama tokenizer; cl100k_base is used as a reasonable cross-model
@@ -137,6 +140,7 @@ SUCCESS_RATE = {
     "gpt-3.5-turbo": 0.4467,
     "gpt-4o": 0.4733,
     "llama-3.1-8b": 0.0,
+    "claude-sonnet-5": 0.68,
 }
 
 

@@ -46,3 +46,19 @@ llama-3.1-8b,overall_cat_accuracy (Success Rate),0.0,300
 llama-3.1-8b,status:agent validation failed,0.8233333333333334,300
 llama-3.1-8b,status:agent context limit,0.17666666666666667,300
 llama-3.1-8b,avg_history_length (proxy for rounds/cost),4.373333333333333,300
+claude-sonnet-5,other_accuracy,0.5882352941176471,17
+claude-sonnet-5,counting_accuracy,0.47058823529411764,17
+claude-sonnet-5,comparison_accuracy,0.5294117647058824,17
+claude-sonnet-5,ranking_accuracy,0.8235294117647058,17
+claude-sonnet-5,aggregation-SUM_accuracy,0.625,8
+claude-sonnet-5,aggregation-MIN_accuracy,0.75,8
+claude-sonnet-5,aggregation-MAX_accuracy,0.375,8
+claude-sonnet-5,aggregation-AVG_accuracy,0.875,8
+claude-sonnet-5,SELECT_accuracy,0.62,100
+claude-sonnet-5,INSERT_accuracy,0.54,100
+claude-sonnet-5,UPDATE_accuracy,0.88,100
+claude-sonnet-5,overall_cat_accuracy (Success Rate),0.68,300
+claude-sonnet-5,status:completed,0.97,300
+claude-sonnet-5,status:agent validation failed,0.02666666666666667,300
+claude-sonnet-5,status:task limit reached,0.0033333333333333335,300
+claude-sonnet-5,avg_history_length (proxy for rounds/cost),9.48,300

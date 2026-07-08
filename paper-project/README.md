@@ -18,7 +18,18 @@ SKT FLY AI 9기 논문 발표용 프로젝트. [AgentBench: Evaluating LLMs as A
 \* gpt-4o는 정확도는 최고지만 프레임워크의 "context limit" 오분류(25.7%)로 완료율이 낮게 잡힘
 † llama-3.1-8b는 포맷 미준수(82.3%)로 즉시 실패 — 자세한 원인은 `docs/paper_card.md` "한계" 참고
 
-전체 로그: [`results/raw/`](results/raw/) · 집계: [`results/metrics.csv`](results/metrics.csv)
+**비용·속도·에러율 추가 분석** (`src/analyze.py`, `results/analysis.csv`):
+
+| 모델 | 300문제 비용 | 정답당 비용 | SQL 실행 에러율 | 평균 응답 길이 |
+|---|---|---|---|---|
+| `gpt-3.5-turbo` | $0.44 | **$0.0033** | **50.7%** | 134자 |
+| `gpt-4o` | $1.61 | $0.0113 | 7.3% | **259자** |
+| `llama-3.1-8b` | $0.01 (실제로는 Groq 무료) | — | 14.0% | 78자 |
+
+gpt-3.5-turbo는 SQL 문법 오류를 훨씬 많이 내면서도(50.7%) 재시도로 복구해 최종 정확도는 gpt-4o와
+비슷 — "정답당 비용"으로 보면 gpt-4o보다 3.4배 저렴. 자세한 내용은 `docs/paper_card.md` 참고.
+
+전체 로그: [`results/raw/`](results/raw/) · 집계: [`results/metrics.csv`](results/metrics.csv), [`results/analysis.csv`](results/analysis.csv)
 
 ## 구조
 
@@ -28,12 +39,14 @@ paper-project/
 ├── notebooks/demo.ipynb               발표용 노트북 (Colab+GPU 대응, 3모델 라이브 데모 + 결과 시각화)
 ├── src/
 │   ├── baseline.py                    프레임워크 없이 LLM 1회 호출 (3개 모델 모두 지원)
-│   └── evaluate.py                    원본 채점 로직을 독립 재구현, 3개 모델 runs.jsonl → metrics.csv
+│   ├── evaluate.py                    원본 채점 로직을 독립 재구현, 3개 모델 runs.jsonl → metrics.csv
+│   └── analyze.py                     비용/토큰/처리속도/SQL실행에러율/응답길이 → analysis.csv
 ├── data/
 │   ├── sample_cases.jsonl             20개 toy 사례 (라이브 데모용)
 │   └── dbbench_standard_gold.jsonl    300문제 정답 라벨 (evaluate.py 채점용)
 ├── results/
-│   ├── metrics.csv                    3개 모델 통합 집계 지표
+│   ├── metrics.csv                    3개 모델 통합 집계 지표 (정확도/완료율)
+│   ├── analysis.csv                   3개 모델 비용/속도/에러율/응답길이
 │   └── raw/                           모델별 300문제 본실험 원본 로그
 └── docs/
     ├── paper_card.md                  논문 요약, 3모델 비교, 발견한 이슈 3가지
@@ -56,6 +69,10 @@ python src/baseline.py --index 0 --model llama-3.1-8b-instant
 
 # 2) 실제 300문제 본실험 로그로부터 3개 모델 지표 재계산 (원본 채점 로직과 결과 일치 확인됨)
 python src/evaluate.py
+
+# 2-1) 비용/속도/에러율 등 추가 분석
+pip install tiktoken
+python src/analyze.py
 
 # 3) 발표용 노트북 (Colab 권장: 런타임 유형을 GPU로 설정)
 jupyter notebook notebooks/demo.ipynb

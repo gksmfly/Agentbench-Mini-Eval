@@ -1,0 +1,21 @@
+model,index,status,GP,SGA
+llama-3.1-8b,19,task limit reached,0,0
+llama-3.1-8b,18,task limit reached,0,0
+llama-3.1-8b,17,task limit reached,0,0
+llama-3.1-8b,16,task limit reached,0,0
+llama-3.1-8b,15,task limit reached,0,0.36
+llama-3.1-8b,14,task limit reached,0,0.12
+llama-3.1-8b,13,task limit reached,0,0
+llama-3.1-8b,12,task limit reached,0,0
+llama-3.1-8b,11,task limit reached,0,0
+llama-3.1-8b,10,task limit reached,0,0.12
+llama-3.1-8b,9,task limit reached,0,0
+llama-3.1-8b,8,task limit reached,0,0
+llama-3.1-8b,7,task limit reached,0,0
+llama-3.1-8b,6,task limit reached,0,0.4
+llama-3.1-8b,5,task limit reached,0,0.24
+llama-3.1-8b,4,task limit reached,0,0
+llama-3.1-8b,3,task limit reached,0,0
+llama-3.1-8b,2,task limit reached,0,0
+llama-3.1-8b,1,task limit reached,0,0
+llama-3.1-8b,0,task limit reached,0,0

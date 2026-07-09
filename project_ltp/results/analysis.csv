@@ -17,7 +17,7 @@ gpt-4o,host_irrelevant_answer_rate,0.3225152129817444
 gpt-4o,avg_agent_response_chars,92.81744421906694
 llama-3.1-8b,total_input_tokens_est,441035
 llama-3.1-8b,total_output_tokens_est,14655
-llama-3.1-8b,estimated_cost_usd_dev_subset,0.0232
+llama-3.1-8b,estimated_cost_usd_dev_subset,0.0
 llama-3.1-8b,wall_clock_minutes_dev_subset,19.457150000000002
 llama-3.1-8b,games_per_minute,1.0278997694934766
 llama-3.1-8b,avg_rounds_used,25.0

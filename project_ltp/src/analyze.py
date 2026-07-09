@@ -32,16 +32,15 @@ OUT_FILE = ROOT / "results" / "analysis.csv"
 MODELS = ["gpt-3.5-turbo", "gpt-4o", "llama-3.1-8b", "vicuna-13b-local", "claude-sonnet-5"]
 
 # Same pricing table as project_db/src/analyze.py -- see that file for sourcing notes.
-# llama-3.1-8b was actually run via Groq's free tier, so real spend was $0; the paid
-# rate is included only so the "if you weren't on the free tier" comparison is visible.
-# vicuna-13b-local was run on local hardware (no API), so its "cost" is $0 regardless
-# of the token counts below -- the pricing entry exists only so the table doesn't KeyError.
+# llama-3.1-8b and vicuna-13b-local were both run locally on GPU (no API), so their
+# "cost" is $0 regardless of the token counts below -- the pricing entries exist only
+# so the table doesn't KeyError.
 # claude-sonnet-5 uses Anthropic's introductory pricing (in effect through 2026-08-31);
 # standard pricing is $3.00/$15.00.
 PRICING_PER_1M = {
     "gpt-3.5-turbo": {"input": 0.50, "output": 1.50},
     "gpt-4o": {"input": 2.50, "output": 10.00},
-    "llama-3.1-8b": {"input": 0.05, "output": 0.08},
+    "llama-3.1-8b": {"input": 0.0, "output": 0.0},
     "vicuna-13b-local": {"input": 0.0, "output": 0.0},
     "claude-sonnet-5": {"input": 2.00, "output": 10.00},
 }

@@ -12,7 +12,6 @@ AgentBench framework run in `results/` already did across all 300 problems.
 Usage:
     export OPENAI_API_KEY=sk-...
     export ANTHROPIC_API_KEY=sk-ant-...      # only needed for the claude-sonnet-5 model
-    export HF_TOKEN=hf_...                   # only needed for the llama-3.1-8b model (gated on HF)
     python src/baseline.py                   # first sample_cases.jsonl entry, gpt-3.5-turbo
     python src/baseline.py --index 3
     python src/baseline.py --model gpt-4o
@@ -66,19 +65,16 @@ _LOCAL_MODEL_CACHE = {}
 
 
 def call_local_llama(history: list[dict]) -> str:
-    """Loads meta-llama/Llama-3.1-8B-Instruct on the local GPU (4-bit quantized) and
-    generates one reply. This is how llama-3.1-8b was actually run for this reproduction —
-    no external API involved. Requires a CUDA GPU + transformers/accelerate/bitsandbytes."""
+    """Loads NousResearch/Meta-Llama-3.1-8B-Instruct (an ungated mirror of the same
+    weights -- no HF token or license click-through needed) on the local GPU (4-bit
+    quantized) and generates one reply. This is how llama-3.1-8b was actually run for
+    this reproduction -- no external API involved. Requires a CUDA GPU +
+    transformers/accelerate/bitsandbytes."""
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-    model_id = "meta-llama/Llama-3.1-8B-Instruct"
+    model_id = "NousResearch/Meta-Llama-3.1-8B-Instruct"
     if model_id not in _LOCAL_MODEL_CACHE:
-        from huggingface_hub import login
-
-        hf_token = os.environ.get("HF_TOKEN")
-        if hf_token:
-            login(hf_token)
         tokenizer = AutoTokenizer.from_pretrained(model_id)
         model = AutoModelForCausalLM.from_pretrained(
             model_id,
@@ -93,9 +89,42 @@ def call_local_llama(history: list[dict]) -> str:
     return tokenizer.decode(out[0][inputs.shape[-1]:], skip_special_tokens=True)
 
 
+def call_local_vicuna(history: list[dict]) -> str:
+    """Loads lmsys/vicuna-13b-v1.5 on the local GPU (4-bit quantized) and generates one
+    reply. vicuna-13b-v1.5's tokenizer has no chat_template (pre-dates that HF convention),
+    so the prompt is assembled with FastChat's own vicuna_v1.1 template instead of
+    apply_chat_template()."""
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+    model_id = "lmsys/vicuna-13b-v1.5"
+    if model_id not in _LOCAL_MODEL_CACHE:
+        tokenizer = AutoTokenizer.from_pretrained(model_id)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_id,
+            quantization_config=BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16),
+            device_map="auto",
+        )
+        _LOCAL_MODEL_CACHE[model_id] = (tokenizer, model)
+    tokenizer, model = _LOCAL_MODEL_CACHE[model_id]
+
+    system = ("A chat between a curious user and an artificial intelligence assistant. "
+              "The assistant gives helpful, detailed, and polite answers to the user's questions.")
+    prompt = system + " "
+    for m in history:
+        role = "USER" if m["role"] == "user" else "ASSISTANT"
+        prompt += f"{role}: {m['content']}" + (" " if role == "USER" else "</s>")
+    prompt += "ASSISTANT:"
+
+    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+    out = model.generate(**inputs, max_new_tokens=512, do_sample=False)
+    return tokenizer.decode(out[0][inputs["input_ids"].shape[-1]:], skip_special_tokens=True)
+
+
 def call_llm(model: str, history: list[dict]) -> str:
-    """Routes to OpenAI for gpt-* models, Anthropic for claude-* models; llama-* models
-    run locally on GPU (see call_local_llama), not through an external API."""
+    """Routes to OpenAI for gpt-* models, Anthropic for claude-* models; llama-*/vicuna-*
+    models run locally on GPU (see call_local_llama/call_local_vicuna), not through an
+    external API."""
     if model.startswith("claude"):
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
@@ -111,6 +140,9 @@ def call_llm(model: str, history: list[dict]) -> str:
 
     if model.startswith("llama"):
         return call_local_llama(history)
+
+    if model.startswith("vicuna"):
+        return call_local_vicuna(history)
 
     url = "https://api.openai.com/v1/chat/completions"
     api_key = os.environ.get("OPENAI_API_KEY")

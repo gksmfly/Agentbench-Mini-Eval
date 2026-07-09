@@ -1,7 +1,7 @@
 """
 vicuna-13b-local을 dbbench-std 300문제 전체로 실행 (원격 GPU 서버용, tmux/nohup 백그라운드 실행 대상).
 
-notebooks/vicuna_full_run.ipynb와 완전히 같은 채점 로직입니다 (Colab 전용 부분만 제거):
+THUDM/AgentBench 원본 채점 로직을 그대로 이식한 독립 실행 스크립트입니다:
 - THUDM/AgentBench의 build_init_sql()/정규식 파싱/MD5 채점 쿼리/상태값을 그대로 이식
 - Docker도, THUDM/AgentBench 원본 클론도 필요 없음 -- 이 파일이 그 로직을 전부 독립적으로 재구현
 - MySQL도 이 스크립트가 직접 설치/설정 (Colab의 MySQL과는 별개로 이 서버에 새로 설치)

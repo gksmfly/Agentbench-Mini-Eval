@@ -5,11 +5,12 @@ gpt-3.5-turbo,QR,0.49000000000000005,20
 gpt-3.5-turbo,GP,0.057499999999999996,20
 gpt-3.5-turbo,status:task limit reached,0.75,20
 gpt-3.5-turbo,status:completed,0.25,20
-gpt-4o,SGA,0.38461538461538464,13
-gpt-4o,RE,0.0,13
-gpt-4o,QR,0.6061538461538462,13
-gpt-4o,GP,0.05128205128205128,13
-gpt-4o,status:task limit reached,1.0,13
+gpt-4o,SGA,0.43200000000000005,20
+gpt-4o,RE,0.032,20
+gpt-4o,QR,0.606,20
+gpt-4o,GP,0.07916666666666666,20
+gpt-4o,status:task limit reached,0.95,20
+gpt-4o,status:completed,0.05,20
 llama-3.1-8b,SGA,0.062,20
 llama-3.1-8b,RE,0.0,20
 llama-3.1-8b,QR,0.08199999999999999,20

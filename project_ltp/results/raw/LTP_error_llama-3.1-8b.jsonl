@@ -1,0 +1,1 @@
+{"index": 19, "error": "START_FAILED", "info": "{\"detail\":\"Error: Worker returned error\\n{\\\"detail\\\":\\\"Session ID already exists\\\"}\"}", "output": null, "time": {"timestamp": 1783486450420, "str": "2026-07-08 13:54:10"}}

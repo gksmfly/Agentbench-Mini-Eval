@@ -15,10 +15,12 @@ did across the 20 dev-split puzzles.
 Usage:
     export OPENAI_API_KEY=sk-...
     export GROQ_API_KEY=gsk_...              # only needed for the llama-3.1-8b model
+    export ANTHROPIC_API_KEY=sk-ant-...      # only needed for the claude-sonnet-5 model
     python src/baseline.py                   # first sample_cases.jsonl entry, gpt-3.5-turbo
     python src/baseline.py --index 3
     python src/baseline.py --model gpt-4o
     python src/baseline.py --model llama-3.1-8b-instant
+    python src/baseline.py --model claude-sonnet-5
 """
 import argparse
 import json
@@ -102,7 +104,22 @@ def build_host_history(entry: dict, question: str) -> list[dict]:
 
 
 def call_llm(model: str, history: list[dict]) -> str:
-    """Routes to OpenAI for gpt-* models, Groq for llama-* models (both OpenAI-compatible APIs)."""
+    """Routes to OpenAI for gpt-* models, Groq for llama-* models, Anthropic for claude-* models
+    (vicuna-13b-local is not routed here -- it's a local-GPU model, see project_db's baseline.py
+    for the local-load pattern)."""
+    if model.startswith("claude"):
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise SystemExit("Set ANTHROPIC_API_KEY first: export ANTHROPIC_API_KEY=sk-ant-...")
+        resp = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={"x-api-key": api_key, "anthropic-version": "2023-06-01"},
+            json={"model": model, "max_tokens": 512, "thinking": {"type": "disabled"}, "messages": history},
+            timeout=60,
+        )
+        resp.raise_for_status()
+        return resp.json()["content"][0]["text"]
+
     if model.startswith("llama"):
         url = "https://api.groq.com/openai/v1/chat/completions"
         api_key = os.environ.get("GROQ_API_KEY")

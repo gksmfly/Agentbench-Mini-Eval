@@ -3,14 +3,13 @@ Recompute AgentBench's LTP (Lateral Thinking Puzzle) metrics - Game Progress (GP
 Single Game Accuracy (SGA), Round Efficiency (RE), Query Relevance (QR) - from raw
 run logs, for all 3 models compared in this project.
 
-This reimplements the exact scoring rule used by AgentBench's
-`src/server/tasks/ltp/task.py` (`LateralThinkingPuzzle.start_sample`, THUDM/AgentBench),
-so the numbers here match each raw run's own `output.result` fields (produced live by
-the framework during the actual 25-round host/solver loop) almost exactly - this
-script exists to make that scoring logic transparent and independently checkable
-from the flat interaction transcript alone, not to replace it.
+Mirrors project_db/src/evaluate.py's shape: reads raw logs directly (no intermediate
+per-game summary CSV), independently reimplements the framework's own scoring rule,
+and writes only the aggregate metrics to results/metrics.csv in the same long format
+(model, metric, value, n_samples) that project_db uses.
 
-Independent recomputation, no LLM calls:
+This reimplements the exact scoring rule used by AgentBench's
+`src/server/tasks/ltp/task.py` (`LateralThinkingPuzzle.start_sample`, THUDM/AgentBench):
   - SGA (accuracy) and QR (relevance) are recovered by re-parsing each round's
     "Round N: <question>" / "<host answer>" pair out of the logged transcript
     (`result.history`) and re-applying the framework's own `check_yes` / `check_no`
@@ -21,6 +20,10 @@ Independent recomputation, no LLM calls:
     framework's own logged dict of matched key points and hints is the original
     number of gold key-point lines for that puzzle (data/ltp_dev_gold.jsonl).
 
+The recomputed-vs-logged comparison (does our independent scoring match what the
+framework logged live?) is verification, not a metric to publish -- it's printed to
+the console, not written to results/metrics.csv.
+
 Usage:
     python src/evaluate.py
 
@@ -29,7 +32,7 @@ Inputs (checked in by default, see ../data and ../results/raw):
     results/raw/LTP_runs_<model>.jsonl            raw per-sample outputs from each real run
 
 Output:
-    results/metrics.csv   (one row per metric per model, plus a recomputed-vs-logged check)
+    results/metrics.csv   (one row per aggregate metric per model)
 """
 import csv
 import json
@@ -41,7 +44,7 @@ GOLD_FILE = ROOT / "data" / "ltp_dev_gold.jsonl"
 RAW_DIR = ROOT / "results" / "raw"
 OUT_FILE = ROOT / "results" / "metrics.csv"
 
-MODELS = ["gpt-3.5-turbo", "gpt-4o", "llama-3.1-8b"]
+MODELS = ["gpt-3.5-turbo", "gpt-4o", "llama-3.1-8b", "vicuna-13b-local", "claude-sonnet-5"]
 ROUNDS = 25  # configs/tasks/ltp.yaml: parameters.round
 
 ROUND_LINE = re.compile(r"^Round \d+:")
@@ -61,7 +64,7 @@ def load_runs(path: Path) -> dict:
     with open(path) as f:
         for line in f:
             d = json.loads(line)
-            runs[d["index"]] = d["output"]["result"]
+            runs[d["index"]] = {"status": d["output"]["status"], "result": d["output"]["result"]}
     return runs
 
 
@@ -98,15 +101,18 @@ def recompute_from_history(history: list) -> tuple:
     return correct, relevant
 
 
-def evaluate_model(model: str, gold: dict) -> list:
+def evaluate_model(model: str, gold: dict) -> tuple:
     runs = load_runs(RAW_DIR / f"LTP_runs_{model}.jsonl")
+    n = len(runs)
 
-    rows = []
-    logged_totals = {"SGA": [], "RE": [], "QR": [], "GP": []}
     recomputed_totals = {"SGA": [], "RE": [], "QR": [], "GP": []}
+    status_counts = {}
     mismatches = 0
 
-    for index, result in sorted(runs.items()):
+    for index, entry in sorted(runs.items()):
+        result = entry["result"]
+        status_counts[entry["status"]] = status_counts.get(entry["status"], 0) + 1
+
         history = result["history"]
         finish_round = result["finish_round"]
         hit_keys = result["hit_keys"]
@@ -125,39 +131,17 @@ def evaluate_model(model: str, gold: dict) -> list:
             "QR": result["relevance"],
             "GP": result["progress"],
         }
-
-        row_mismatch = False
-        for metric in ("SGA", "RE", "QR", "GP"):
-            logged_totals[metric].append(logged[metric])
-            recomputed_totals[metric].append(recomputed[metric])
-            if abs(logged[metric] - recomputed[metric]) > 1e-6:
-                row_mismatch = True
-        if row_mismatch:
+        if any(abs(logged[m] - recomputed[m]) > 1e-6 for m in recomputed):
             mismatches += 1
+        for m in recomputed_totals:
+            recomputed_totals[m].append(recomputed[m])
 
-        rows.append(
-            {
-                "model": model,
-                "index": index,
-                "SGA_logged": logged["SGA"], "SGA_recomputed": recomputed["SGA"],
-                "RE_logged": logged["RE"], "RE_recomputed": recomputed["RE"],
-                "QR_logged": logged["QR"], "QR_recomputed": recomputed["QR"],
-                "GP_logged": logged["GP"], "GP_recomputed": recomputed["GP"],
-                "match": not row_mismatch,
-            }
-        )
+    rows = []
+    for metric, values in recomputed_totals.items():
+        rows.append({"model": model, "metric": metric, "value": sum(values) / n, "n_samples": n})
+    for status, count in status_counts.items():
+        rows.append({"model": model, "metric": f"status:{status}", "value": count / n, "n_samples": n})
 
-    n = len(runs)
-    overall = {
-        "model": model,
-        "index": "OVERALL (mean)",
-        "SGA_logged": sum(logged_totals["SGA"]) / n, "SGA_recomputed": sum(recomputed_totals["SGA"]) / n,
-        "RE_logged": sum(logged_totals["RE"]) / n, "RE_recomputed": sum(recomputed_totals["RE"]) / n,
-        "QR_logged": sum(logged_totals["QR"]) / n, "QR_recomputed": sum(recomputed_totals["QR"]) / n,
-        "GP_logged": sum(logged_totals["GP"]) / n, "GP_recomputed": sum(recomputed_totals["GP"]) / n,
-        "match": mismatches == 0,
-    }
-    rows.append(overall)
     return rows, mismatches, n
 
 
@@ -172,31 +156,21 @@ def main():
         summary.append((model, n, mismatches))
 
     OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = [
-        "model", "index",
-        "SGA_logged", "SGA_recomputed",
-        "RE_logged", "RE_recomputed",
-        "QR_logged", "QR_recomputed",
-        "GP_logged", "GP_recomputed",
-        "match",
-    ]
     with open(OUT_FILE, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=["model", "metric", "value", "n_samples"])
         writer.writeheader()
         writer.writerows(all_rows)
 
     print(f"Wrote {OUT_FILE}\n")
     for model in MODELS:
         print(f"=== {model} ===")
-        overall = next(r for r in all_rows if r["model"] == model and r["index"] == "OVERALL (mean)")
-        for metric in ("SGA", "RE", "QR", "GP"):
-            print(
-                f"{metric:<5} logged={overall[f'{metric}_logged']:.4f}  "
-                f"recomputed={overall[f'{metric}_recomputed']:.4f}"
-            )
+        for r in all_rows:
+            if r["model"] != model:
+                continue
+            print(f"{r['metric']:<25}{r['value']:.4f}")
         print()
 
-    print("--- verification summary (recomputed from raw transcripts vs. framework's own logged scores) ---")
+    print("--- verification (recomputed from raw transcripts vs. framework's own logged scores; not written to metrics.csv) ---")
     for model, n, mismatches in summary:
         status = "MATCH" if mismatches == 0 else f"{mismatches}/{n} SAMPLES DIFFER"
         print(f"{model:<16} n={n:<3} {status}")

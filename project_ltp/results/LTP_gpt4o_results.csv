@@ -1,8 +1,0 @@
-model,index,status,GP,SGA
-gpt-4o,19,task limit reached,0.0,0.24
-gpt-4o,18,task limit reached,0.0,0.32
-gpt-4o,17,task limit reached,0.0,0.16
-gpt-4o,16,task limit reached,0.0,0.32
-gpt-4o,15,task limit reached,0.0,0.08
-gpt-4o,14,task limit reached,0.17,0.32
-gpt-4o,13,task limit reached,0.33,0.48

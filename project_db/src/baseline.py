@@ -11,13 +11,13 @@ AgentBench framework run in `results/` already did across all 300 problems.
 
 Usage:
     export OPENAI_API_KEY=sk-...
-    export GROQ_API_KEY=gsk_...              # only needed for the llama-3.1-8b model
     export ANTHROPIC_API_KEY=sk-ant-...      # only needed for the claude-sonnet-5 model
+    export HF_TOKEN=hf_...                   # only needed for the llama-3.1-8b model (gated on HF)
     python src/baseline.py                   # first sample_cases.jsonl entry, gpt-3.5-turbo
     python src/baseline.py --index 3
     python src/baseline.py --model gpt-4o
-    python src/baseline.py --model llama-3.1-8b-instant
     python src/baseline.py --model claude-sonnet-5
+    python src/baseline.py --model llama-3.1-8b            # loads locally on GPU, no API call
 """
 import argparse
 import json
@@ -62,8 +62,40 @@ def build_user_prompt(entry: dict) -> str:
     return entry["description"] + "\n" + entry.get("add_description", "")
 
 
+_LOCAL_MODEL_CACHE = {}
+
+
+def call_local_llama(history: list[dict]) -> str:
+    """Loads meta-llama/Llama-3.1-8B-Instruct on the local GPU (4-bit quantized) and
+    generates one reply. This is how llama-3.1-8b was actually run for this reproduction —
+    no external API involved. Requires a CUDA GPU + transformers/accelerate/bitsandbytes."""
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+    model_id = "meta-llama/Llama-3.1-8B-Instruct"
+    if model_id not in _LOCAL_MODEL_CACHE:
+        from huggingface_hub import login
+
+        hf_token = os.environ.get("HF_TOKEN")
+        if hf_token:
+            login(hf_token)
+        tokenizer = AutoTokenizer.from_pretrained(model_id)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_id,
+            quantization_config=BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16),
+            device_map="auto",
+        )
+        _LOCAL_MODEL_CACHE[model_id] = (tokenizer, model)
+    tokenizer, model = _LOCAL_MODEL_CACHE[model_id]
+
+    inputs = tokenizer.apply_chat_template(history, add_generation_prompt=True, return_tensors="pt").to(model.device)
+    out = model.generate(inputs, max_new_tokens=512, do_sample=False)
+    return tokenizer.decode(out[0][inputs.shape[-1]:], skip_special_tokens=True)
+
+
 def call_llm(model: str, history: list[dict]) -> str:
-    """Routes to OpenAI for gpt-* models, Groq for llama-* models, Anthropic for claude-* models."""
+    """Routes to OpenAI for gpt-* models, Anthropic for claude-* models; llama-* models
+    run locally on GPU (see call_local_llama), not through an external API."""
     if model.startswith("claude"):
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
@@ -78,15 +110,12 @@ def call_llm(model: str, history: list[dict]) -> str:
         return resp.json()["content"][0]["text"]
 
     if model.startswith("llama"):
-        url = "https://api.groq.com/openai/v1/chat/completions"
-        api_key = os.environ.get("GROQ_API_KEY")
-        if not api_key:
-            raise SystemExit("Set GROQ_API_KEY first: export GROQ_API_KEY=gsk_...")
-    else:
-        url = "https://api.openai.com/v1/chat/completions"
-        api_key = os.environ.get("OPENAI_API_KEY")
-        if not api_key:
-            raise SystemExit("Set OPENAI_API_KEY first: export OPENAI_API_KEY=sk-...")
+        return call_local_llama(history)
+
+    url = "https://api.openai.com/v1/chat/completions"
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise SystemExit("Set OPENAI_API_KEY first: export OPENAI_API_KEY=sk-...")
 
     resp = requests.post(
         url,

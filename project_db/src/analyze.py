@@ -30,8 +30,9 @@ MODELS = ["gpt-3.5-turbo", "gpt-4o", "llama-3.1-8b", "claude-sonnet-5"]
 
 # Approximate public per-1M-token pricing at time of writing. Not guaranteed current —
 # check the provider's pricing page before using these numbers for a real budget.
-# llama-3.1-8b was actually run via Groq's free tier, so real spend was $0; the paid
-# rate is included only so the "if you weren't on the free tier" comparison is visible.
+# llama-3.1-8b was actually run locally on GPU, so real spend was $0; the paid rate is
+# included only so the "cost if you had to pay per-token API pricing instead" comparison
+# is visible.
 # claude-sonnet-5 uses Anthropic's introductory pricing (in effect through 2026-08-31);
 # standard pricing is $3.00/$15.00.
 PRICING_PER_1M = {

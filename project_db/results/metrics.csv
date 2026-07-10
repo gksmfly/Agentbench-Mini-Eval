@@ -62,3 +62,19 @@ claude-sonnet-5,status:completed,0.97,300
 claude-sonnet-5,status:agent validation failed,0.02666666666666667,300
 claude-sonnet-5,status:task limit reached,0.0033333333333333335,300
 claude-sonnet-5,avg_history_length (proxy for rounds/cost),9.48,300
+vicuna-13b-local,other_accuracy,0.0,17
+vicuna-13b-local,counting_accuracy,0.058823529411764705,17
+vicuna-13b-local,comparison_accuracy,0.0,17
+vicuna-13b-local,ranking_accuracy,0.058823529411764705,17
+vicuna-13b-local,aggregation-SUM_accuracy,0.0,8
+vicuna-13b-local,aggregation-MIN_accuracy,0.0,8
+vicuna-13b-local,aggregation-MAX_accuracy,0.0,8
+vicuna-13b-local,aggregation-AVG_accuracy,0.0,8
+vicuna-13b-local,SELECT_accuracy,0.02,100
+vicuna-13b-local,INSERT_accuracy,0.0,100
+vicuna-13b-local,UPDATE_accuracy,0.0,100
+vicuna-13b-local,overall_cat_accuracy (Success Rate),0.006666666666666667,300
+vicuna-13b-local,status:agent validation failed,0.5266666666666666,300
+vicuna-13b-local,status:task limit reached,0.24666666666666667,300
+vicuna-13b-local,status:completed,0.22666666666666666,300
+vicuna-13b-local,avg_history_length (proxy for rounds/cost),16.773333333333333,300

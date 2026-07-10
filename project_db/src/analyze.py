@@ -26,27 +26,30 @@ ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = ROOT / "results" / "raw"
 OUT_FILE = ROOT / "results" / "analysis.csv"
 
-MODELS = ["gpt-3.5-turbo", "gpt-4o", "llama-3.1-8b", "claude-sonnet-5"]
+MODELS = ["gpt-3.5-turbo", "gpt-4o", "llama-3.1-8b", "claude-sonnet-5", "vicuna-13b-local"]
 
 # Approximate public per-1M-token pricing at time of writing. Not guaranteed current —
 # check the provider's pricing page before using these numbers for a real budget.
-# llama-3.1-8b was actually run locally on GPU, so real spend was $0; the paid rate is
-# included only so the "cost if you had to pay per-token API pricing instead" comparison
-# is visible.
+# llama-3.1-8b and vicuna-13b-local were both run locally on GPU, so real spend was $0;
+# the pricing entries exist only so the table doesn't KeyError.
 # claude-sonnet-5 uses Anthropic's introductory pricing (in effect through 2026-08-31);
 # standard pricing is $3.00/$15.00.
 PRICING_PER_1M = {
     "gpt-3.5-turbo": {"input": 0.50, "output": 1.50},
     "gpt-4o": {"input": 2.50, "output": 10.00},
-    "llama-3.1-8b": {"input": 0.05, "output": 0.08},
+    "llama-3.1-8b": {"input": 0.0, "output": 0.0},
     "claude-sonnet-5": {"input": 2.00, "output": 10.00},
+    "vicuna-13b-local": {"input": 0.0, "output": 0.0},
 }
 
 # tiktoken has no llama tokenizer; cl100k_base is used as a reasonable cross-model
 # approximation for relative comparison (absolute counts for llama will be approximate).
 ENCODING = tiktoken.get_encoding("cl100k_base")
 
-SQL_ERROR_PATTERN = re.compile(r"\b(ERROR|1064|1146|1054|1305|1planning)\b", re.IGNORECASE)
+# MySQL's mysql.connector error strings are "<code> (<SQLSTATE>): <message>", e.g.
+# "1146 (42S02): Table ... doesn't exist" -- SQLSTATE is alphanumeric (not always digits),
+# so this matches the general shape rather than a hardcoded list of specific codes.
+SQL_ERROR_PATTERN = re.compile(r"\bERROR\b|\d{3,5}\s*\([0-9A-Za-z]{5}\)", re.IGNORECASE)
 
 
 def load_runs(path: Path):
@@ -142,6 +145,7 @@ SUCCESS_RATE = {
     "gpt-4o": 0.4733,
     "llama-3.1-8b": 0.0,
     "claude-sonnet-5": 0.68,
+    "vicuna-13b-local": 0.0067,
 }
 
 

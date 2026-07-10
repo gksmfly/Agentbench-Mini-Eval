@@ -27,7 +27,7 @@ GOLD_FILE = ROOT / "data" / "dbbench_standard_gold.jsonl"
 RAW_DIR = ROOT / "results" / "raw"
 OUT_FILE = ROOT / "results" / "metrics.csv"
 
-MODELS = ["gpt-3.5-turbo", "gpt-4o", "llama-3.1-8b", "claude-sonnet-5"]
+MODELS = ["gpt-3.5-turbo", "gpt-4o", "llama-3.1-8b", "claude-sonnet-5", "vicuna-13b-local"]
 
 TYPES = [
     "other", "counting", "comparison", "ranking",

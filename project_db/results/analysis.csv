@@ -5,7 +5,7 @@ gpt-3.5-turbo,estimated_cost_usd_300_samples,0.4428
 gpt-3.5-turbo,estimated_cost_usd_per_correct_answer,0.0033
 gpt-3.5-turbo,wall_clock_minutes_300_samples,10.896633333333334
 gpt-3.5-turbo,samples_per_minute,27.53143937424097
-gpt-3.5-turbo,sql_execution_error_rate,0.5066666666666667
+gpt-3.5-turbo,sql_execution_error_rate,0.5166666666666667
 gpt-3.5-turbo,avg_agent_response_chars,134.21363952679192
 gpt-4o,total_input_tokens_est,396812
 gpt-4o,total_output_tokens_est,61368
@@ -17,11 +17,11 @@ gpt-4o,sql_execution_error_rate,0.07333333333333333
 gpt-4o,avg_agent_response_chars,258.84888438133873
 llama-3.1-8b,total_input_tokens_est,211100
 llama-3.1-8b,total_output_tokens_est,13050
-llama-3.1-8b,estimated_cost_usd_300_samples,0.0116
+llama-3.1-8b,estimated_cost_usd_300_samples,0.0
 llama-3.1-8b,estimated_cost_usd_per_correct_answer,
 llama-3.1-8b,wall_clock_minutes_300_samples,9.239116666666666
 llama-3.1-8b,samples_per_minute,32.47063662290948
-llama-3.1-8b,sql_execution_error_rate,0.14
+llama-3.1-8b,sql_execution_error_rate,0.14333333333333334
 llama-3.1-8b,avg_agent_response_chars,77.71036585365853
 claude-sonnet-5,total_input_tokens_est,721323
 claude-sonnet-5,total_output_tokens_est,73949
@@ -31,3 +31,11 @@ claude-sonnet-5,wall_clock_minutes_300_samples,15.266933333333332
 claude-sonnet-5,samples_per_minute,19.65031178494699
 claude-sonnet-5,sql_execution_error_rate,0.07333333333333333
 claude-sonnet-5,avg_agent_response_chars,212.23980309423348
+vicuna-13b-local,total_input_tokens_est,3563644
+vicuna-13b-local,total_output_tokens_est,388590
+vicuna-13b-local,estimated_cost_usd_300_samples,0.0
+vicuna-13b-local,estimated_cost_usd_per_correct_answer,0.0
+vicuna-13b-local,wall_clock_minutes_300_samples,272.8204166666667
+vicuna-13b-local,samples_per_minute,1.0996244477059847
+vicuna-13b-local,sql_execution_error_rate,0.6433333333333333
+vicuna-13b-local,avg_agent_response_chars,643.5294117647059
